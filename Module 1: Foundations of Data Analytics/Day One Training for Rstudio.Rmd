@@ -1,0 +1,371 @@
+---
+title: "Introductory to R Data Types and Data Structure"
+author: "Lumumba Wandera Victor"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = NA,
+                      fig.width = 7, fig.height = 5)
+```
+
+
+# PROFESSIONAL DATA SCIENCE COURSE USING R & RSTUDIO
+
+## Session 1: Introduction to R, RStudio, and Basic Data Types
+
+### Create the Current Working Directory
+```{r}
+setwd("D:/New Program/Training Outline/Professional Certificate in Data Analysis")
+```
+
+## 1. Writing and Executing Simple R Scripts
+
+### Example 1: Basic arithmetic
+```{r}
+x <- 10 + 5  # Addition
+y <- x * 2   # Multiplication
+print(y)     # Output: 30
+```
+
+### Get the Value of x
+```{r}
+x
+```
+
+### Perform basic arithmetic
+```{r}
+result <- 10 + 5 * 2
+result
+```
+
+### Logarithmic Function and their Computation
+```{r}
+log(100, base = 10)  # Logarithm base 10
+log(1000, base = 10) # Logarithm base 10
+log(100, base = 2)   # Logarithm base 2
+log(50, base =3)     # Logarithm base 3
+```
+
+### The Antilogarithm Functions
+```{r}
+2^6.643856   # Anti-logarithm of 100 in base 2
+3^3.560877   # Anti-logarithm of 50 in base 3
+```
+
+### Exponential Function and their Computation (Reverse of Natural Logarithms)
+```{r}
+exp(2)  
+exp(3) 
+exp(4)  
+```
+
+### Natural Logarithm and their Computation 
+```{r}
+log(7.389056)  # Natural logarithm of 7.389056
+log(20.08554)  # Natural logarithm of 20.08554
+log(54.59815)  # Natural logarithm of 54.59815
+```
+
+### Trigonometric Functions and their Computation
+```{r}
+sin(pi/2)  # Sine of 90 degrees
+cos(pi/3)  # Cosine of 60 degrees
+tan(pi/4)  # Tangent of 45 degrees
+```
+
+#### Simple Trigonometric Identities
+```{r}
+sin(pi/2)^2 + cos(pi/2)^2  # Should equal 1
+tan(pi/4) == sin(pi/4)/cos(pi/4)  # Should
+```
+
+# Example 2: Print a message
+```{r}
+print("I am a girl"); print("And i go to school"); print("And i love sharing")
+```
+
+```{r}
+print("I am a girl, I go to school and I love sharing")
+```
+
+### 2. Creating and Manipulating Vectors
+
+What is a vector? A vector is a one-dimensional array of elements of the same type.
+
+### Create a numeric vector
+```{r}
+numeric_vector <- c(10, 20, 30, 40, 50)
+print(numeric_vector)
+```
+
+### Create a character vector
+```{r}
+character_vector <- c("appl", "banana", "cherry", "mango","Orange")
+print(character_vector)
+```
+
+### Manipulation of Vectors
+```{r}
+character_vector[2]="avocado"
+print(character_vector)
+```
+
+
+### Character Vector of Ten Students
+```{r}
+student_vector <- c("Mike", "Jane", "Moise", "Eytan", "Victor", "Beatrice", "Cannon", "Isaiah", "Rose")
+student_vector
+```
+
+### Access elements of a vector
+```{r}
+student_vector[5]
+student_vector[2:6]
+print(numeric_vector[1])       # Output: 1
+print(numeric_vector[2:4])     # Second to fourth elements
+print(character_vector[2])          # Output: "banana"
+```
+
+### Modify a vector
+```{r}
+numeric_vector[3] = 35      # Change the third element to 10
+print(numeric_vector)
+```
+
+### Modify the character vector
+```{r}
+character_vector[3]="melon"
+print(character_vector)
+```
+
+### Vector operations
+```{r}
+numeric_vector
+sum_vector <- numeric_vector + c(1, 1, 1, 1, 1)  # Add 1 to each element
+print(sum_vector)
+```
+
+### Vector arithmetic
+```{r}
+vector_a <- c(1, 2, 3)
+vector_a
+vector_b <- c(4, 5, 6)
+vector_b
+result <- vector_a + vector_b
+print(result)  # Output: 5 7 9
+```
+
+### 3. Creating and Manipulating Matrices  
+What is a Matrix? A matrix is a two-dimensional array with rows and columns.
+
+### Create a matrix
+```{r}
+A <- matrix(c(3, 2, 7, 4, 2, 3, 4, 5 ,2), byrow = FALSE, ncol = 3, nrow = 3)
+A
+```
+
+```{r}
+matrix_data <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3, ncol = 3, byrow = TRUE)
+print(matrix_data)
+```
+
+### Access elements of a matrix
+```{r}
+print(matrix_data[1, 2])       # Element in the first row, second column
+print(matrix_data[, 3])        # Third column
+print(matrix_data[3,3])        # Element in the third column, third row
+print(matrix_data[2, ])        # Second row
+```
+
+### Matrix operations
+```{r}
+t(matrix_data)
+```
+
+```{r}
+matrix_transpose <- t(matrix_data)  # Transpose the matrix
+print(matrix_transpose)
+```
+
+### Matrix multiplication
+```{r}
+A <- matrix(c(2,3,4,7,4, 3, 1, 6, 9), ncol = 3, byrow = TRUE)
+A
+```
+
+```{r}
+B <- matrix(c(5,1,2,3, 3, 5, 2, 1, 7), ncol = 3, byrow = TRUE)
+B
+```
+
+```{r}
+A * B
+```
+
+## Note!! 
+The above method is wrong, the right method is shown below
+
+```{r}
+A%*%B
+```
+
+### Determinant of Matrix
+
+```{r}
+MatA <- matrix(c(2,4,6,3), byrow = TRUE, ncol = 2)
+MatA
+```
+
+#### Determinant of Matrix A
+```{r}
+det(MatA)
+```
+
+#### Inverse of Matrix A
+```{r}
+solve(MatA)
+```
+
+### 4. Creating and Manipulating Lists 
+
+What is a List? A list can store objects of different types.
+
+
+### Example 1: Create a list
+```{r}
+my_list <- list(name = c("Alice", "John","Mary"),
+                age = c(25, 22, 21), 
+                scores = c(85, 90, 95))
+print(my_list)
+```
+
+### Access elements of a list
+```{r}
+my_list$name          # Access the "name" elements
+my_list$age           # Access the "age" elements
+my_list$scores         # Access the "scores" elements
+```
+
+### Modify a list
+```{r}
+my_list$scores <- c(80, 85, 90)  # Update the "scores" element
+print(my_list)
+```
+
+#### Update the name element of the list
+```{r}
+my_list$name <- c("Alice", "Joel", "Mary")
+my_list$name
+```
+
+### Example 2: Create a list
+```{r}
+my_list <- list(name = c("John", "Jane", "Nancy"), 
+                age = c(30, 22,24), 
+                hobbies = c("reading", "coding", "football"))
+print(my_list)
+```
+
+### Example 3: Access elements of a list
+```{r}
+print(my_list$name[2])       # Output: "John"
+my_list$hobbies[3] # Output: "coding"
+```
+
+### Update the name element of the list
+```{r}
+my_list$name[2]<- c("Janerose")
+my_list$name
+```
+
+### 5. Creating and Manipulating Data Frames
+
+### Example 1: Create a data frame
+```{r}
+df <- data.frame(Name = c("Jane", "Mike", "Rose", "Chriss", "Fanuel",
+                          "Alex", "John", "Jared", "Angel", "Moses"),
+                 Town = c("Nairobi", "Kisumu", "Mombasa", "Eldoret", "Meru",
+                          "Kajiado", "Kakamega", "Loitoktok", "Embu", "Voi"),
+                 Weight = c(76, 65, 80, 56, 65, 71, 81, 64, 55, 74),
+                 Age = c(22, 23, 21, 19, 25, 26, 22, 20, 19, 25),
+                 Height = c(1.5, 1.4, 1.65, 1.55, 1.45, 1.34, 1.60, 1.54, 1.45, 1.51))
+```
+
+### View the created data frame
+```{r}
+head(df, 5)  # View the first 5 rows of the data frame
+```
+
+#### View the Entire Data Frame
+```{r}
+View(df)
+```
+
+## Adding a Column
+### Calculate the Body Mass  Index (BMI)
+```{r}
+df$BMI <- df$Weight/(df$Height)^2
+View(df)
+```
+
+### Example 2: Access columns of a data frame
+```{r}
+print(df$Name)    # Printing names
+print(df$Age[2])  # Output: Print age at index 2
+```
+
+###  Update the Observation
+```{r}
+df$Height[5] <- c(1.75)
+View(df)
+```
+
+### Remove the BMI Column
+```{r}
+df$BMI<- NULL
+View(df)
+```
+
+
+### Update the BMI Value
+```{r}
+df$BMI <- df$Weight/(df$Height)^2
+View(df)
+```
+
+### Export thee Created Data Back to the Directory
+```{r}
+write.csv(df, "BMI_Exported_Data.csv")
+```
+
+## Homework
+
+### 1. Practice Basic Operations 
+
+* Create a vector of numbers from 10 to 30.
+
+* Calculate the mean, sum, and length of the vector.
+
+* Multiply each element of the vector by 2.
+
+### 2.  Data Manipulation :
+
+* Create a matrix of size 3x3 with random numbers.
+
+* Find the transpose of the matrix.
+
+* Create a data frame with three columns (Name, Age, City) and add a new column for "Country".
+
+
+
+
+
+
+
+
+
+
+
+
