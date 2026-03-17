@@ -131,10 +131,14 @@ print(character_vector[2])          # Output: "banana"
 ### Modify a vector
 ```{r}
 numeric_vector[3] = 35      # Change the third element to 10
-print(numeric_vector)
+numeric_vector
 ```
 
 ### Modify the character vector
+```{r}
+character_vector
+```
+
 ```{r}
 character_vector[3]="melon"
 print(character_vector)
@@ -151,8 +155,14 @@ print(sum_vector)
 ```{r}
 vector_a <- c(1, 2, 3)
 vector_a
+```
+
+```{r}
 vector_b <- c(4, 5, 6)
 vector_b
+```
+
+```{r}
 result <- vector_a + vector_b
 print(result)  # Output: 5 7 9
 ```
@@ -166,6 +176,7 @@ A <- matrix(c(3, 2, 7, 4, 2, 3, 4, 5 ,2), byrow = FALSE, ncol = 3, nrow = 3)
 A
 ```
 
+### Create Another Matrix Data
 ```{r}
 matrix_data <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9), nrow = 3, ncol = 3, byrow = TRUE)
 print(matrix_data)
@@ -181,9 +192,15 @@ print(matrix_data[2, ])        # Second row
 
 ### Matrix operations
 ```{r}
+matrix_data
+```
+
+### Transpose of a Matrix
+```{r}
 t(matrix_data)
 ```
 
+### Alternatively
 ```{r}
 matrix_transpose <- t(matrix_data)  # Transpose the matrix
 print(matrix_transpose)
@@ -247,12 +264,23 @@ my_list$name          # Access the "name" elements
 my_list$age           # Access the "age" elements
 my_list$scores         # Access the "scores" elements
 ```
+```{r}
+my_list$name[2]       # Access the second name
+```
 
 ### Modify a list
 ```{r}
 my_list$scores <- c(80, 85, 90)  # Update the "scores" element
 print(my_list)
 ```
+```{r}
+my_list$age[1] <- 26  # Update the first age
+print(my_list)
+```
+```{r}
+my_list$age[2:3] <- c(23, 24)  # Update the second and third ages
+```
+
 
 #### Update the name element of the list
 ```{r}
@@ -315,11 +343,20 @@ View(df)
 print(df$Name)    # Printing names
 print(df$Age[2])  # Output: Print age at index 2
 ```
+```{r}
+print(df$Weight[1])  # Output: Print weight at index 1
+print(df$Height[3])  # Output: Print height at index 3
+print(df$BMI[4])     # Output: Print BMI at index 4
+```
 
 ###  Update the Observation
 ```{r}
 df$Height[5] <- c(1.75)
 View(df)
+```
+
+```{r}
+df$Weight[2] <- c(68)
 ```
 
 ### Remove the BMI Column
@@ -335,7 +372,7 @@ df$BMI <- df$Weight/(df$Height)^2
 View(df)
 ```
 
-### Export thee Created Data Back to the Directory
+### Export the Created Data Back to the Directory
 ```{r}
 write.csv(df, "BMI_Exported_Data.csv")
 ```

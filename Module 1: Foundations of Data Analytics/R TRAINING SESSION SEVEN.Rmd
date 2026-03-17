@@ -1,0 +1,533 @@
+---
+title: "R TRAINING SESSION SEVEN-ANALYSIS OF VARIANCE (ANOVA) AND NON-PARAMETRIC TESTS"
+author: "Lumumba Wandera Victor"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 5)
+```
+
+# **R TRAINING SESSION SEVEN**
+
+## **ANALYSIS OF VARIANCE (ANOVA) AND NON-PARAMETRIC TESTS**
+### **1. Introduction**
+
+Analysis of Variance (ANOVA) is a statistical method used to compare the means of three or more groups to determine if there are significant differences among them. It helps to identify whether the observed differences in sample means are likely due to random variation or if they reflect true differences in the population.
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(car) # for Levene ’s test
+library(rstatix) # for streamlined stats workflow
+
+
+# Example : Plant growth dataset
+data("PlantGrowth")
+str(PlantGrowth)
+```
+
+### **Results from an Experiment on Plant Growth**
+
+Description
+
+> Results from an experiment to compare yields (as measured by dried weight of plants) obtained under a control and two different treatment conditions.
+
+Usage
+PlantGrowth
+Format
+A data frame of 30 cases on 2 variables.
+
+[, 1]	weight	numeric
+[, 2]	group	factor
+
+The levels of group are ‘ctrl’, ‘trt1’, and ‘trt2’.
+
+Source
+> Dobson, A. J. (1983) An Introduction to Statistical Modelling. London: Chapman and Hall.
+
+### **Visualization of Data**
+```{r}
+## One factor ANOVA example from Dobson's book, cf. Table 7.4:
+require(stats); require(graphics)
+boxplot(weight ~ group, data = PlantGrowth, main = "PlantGrowth data",
+        ylab = "Dried weight of plants", col = "lightgray",
+        notch = TRUE, varwidth = TRUE)
+```
+
+
+```{r}
+# Visual inspection
+ggplot(PlantGrowth, aes(x=group, y=weight, fill = group)) +
+geom_boxplot(alpha =0.7) + 
+  geom_jitter(width =0.1) +
+  labs(title ="Plant Weight by Treatment Group")
+```
+
+### **State the Null and Alternative Hypotheses**
+
+- Null hypothesis: The mean plant weight is the same across all treatment groups 
+
+- Alternative hypothesis: At least one treatment group has a different mean plant weight 
+
+### **ANOVA Implementation in R**
+```{r}
+# Fit ANOVA model
+model_aov <-aov(weight ~ group, data = PlantGrowth)
+
+#ANOVA table
+summary(model_aov)
+```
+
+### **Reporting ANOVA Results**
+When reporting ANOVA results, it is important to include the following information:
+1. The F-statistic value
+2. The degrees of freedom for the model and residuals
+3. The p-value
+4. The effect size (e.g., eta-squared)
+
+The results above with an F-value of 4.846 and a p-value of 0.015 indicate that there are significant differences in plant weight among the treatment groups. 
+
+```{r}
+# Effect size : Eta - squared
+library(effectsize)
+eta_squared(model_aov)
+```
+
+The effect size (eta-squared) of 0.26 suggests that 26% of the variance in plant weight can be explained by the treatment groups, which is considered a medium effect size. 
+
+### **Post-Hoc Tests**
+Since the ANOVA test indicates significant differences among groups, we can perform post-hoc tests to identify which specific groups differ from each other. The Tukey HSD test is commonly used for this purpose.
+
+```{r}
+# Tukey HSD post-hoc test
+posthoc <- TukeyHSD(model_aov)
+print(posthoc)
+```
+
+The Tukey HSD test results show that the significant difference is between the "trt2" and "trt1" groups, with a p-value of 0.0120064. This indicates that the treatment in "trt2" has a significant effect on plant weight compared to the "trt1" group.
+
+### **Plot the results**
+```{r}
+# Plotting the post-hoc results
+plot(posthoc, las = 1, col = "blue")
+```
+
+```{r}
+4 # Using emmeans for flexible comparisons
+library(emmeans)
+emm <- emmeans(model_aov, ~ group )
+pairs(emm, adjust = "tukey") # Tukey adjustment
+```
+
+### **Check ANOVA Assumptions**
+```{r}
+# 1. Normality of residuals
+shapiro.test(residuals(model_aov))
+```
+
+```{r}
+# Q-Q plot
+qqPlot(model_aov, main ="Q-Q Plot of Residuals")
+```
+
+Null hypothesis: The variances are equal across groups.
+Alternative hypothesis: At least one group has a different variance.
+
+```{r}
+# 2. Homogeneity of variances
+leveneTest(weight ~ group, data = PlantGrowth )
+```
+
+### **Two-Way Analysis of Variance (ANOVA)**
+```{r}
+# Example : ToothGrowth dataset
+data("ToothGrowth")
+ToothGrowth$dose <- factor(ToothGrowth$dose)
+head(ToothGrowth)
+tail(ToothGrowth)
+```
+
+> The Effect of Vitamin C on Tooth Growth in Guinea Pigs
+
+Description
+
+The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+
+Usage
+
+ToothGrowth
+
+Format
+
+> A data frame with 60 observations on 3 variables.
+
+[,1]	len	numeric	Tooth length
+[,2]	supp	factor	Supplement type (VC or OJ).
+[,3]	dose	numeric	Dose in milligrams/day
+
+Source
+> C. I. Bliss (1952). The Statistics of Bioassay. Academic Press.
+
+References
+> McNeil, D. R. (1977). Interactive Data Analysis. New York: Wiley.
+
+Crampton, E. W. (1947). The growth of the odontoblast of the incisor teeth as a criterion of vitamin C intake of the guinea pig. The Journal of Nutrition, 33(5), 491–504. doi:10.1093/jn/33.5.491.
+
+### **Visuals**
+```{r}
+require(graphics)
+coplot(len ~ dose | supp, data = ToothGrowth, panel = panel.smooth,
+       xlab = "ToothGrowth data: length vs dose, given type of supplement")
+```
+
+```{r}
+# Fit two -way ANOVA with interaction
+model_2way <- aov(len ~ supp * dose , data = ToothGrowth)
+summary(model_2way)
+```
+
+A two-way analysis of variance (ANOVA) with interaction was performed to evaluate the effects of supplement type (*supp*: orange juice [OJ] vs. ascorbic acid [VC]) and vitamin C dose (*dose*: 0.5, 1.0, or 2.0 mg/day) on odontoblast growth (*len*) in the classic *ToothGrowth* dataset (N = 60 guinea pigs). The factorial model tested main effects for each factor and their interaction (*supp* × *dose*).
+
+Results revealed a significant main effect of supplement type, *F*(1, 54) = 15.57, *p* = .0002, indicating that, averaged across doses, OJ and VC differed in their influence on tooth growth. A highly significant main effect of dose was also observed, *F*(2, 54) = 92.00, *p* < .001, confirming that higher vitamin C doses strongly stimulated growth. Crucially, the *supp* × *dose* interaction was statistically significant, *F*(2, 54) = 4.11, *p* = .022, demonstrating that the effect of supplement type was not consistent across dose levels.
+
+Because the interaction is significant, interpreting main effects in isolation is potentially misleading. The data suggest that at the lowest dose (0.5 mg), OJ may yield greater tooth growth than VC, whereas differences narrow or reverse at medium and high doses. This non-additive relationship implies that the biological efficacy or bioavailability of the supplement vehicle interacts with dosage. Researchers should therefore conduct simple effects analyses or visualize the interaction via profile plots to clarify dose-specific supplement comparisons.
+
+Model assumptions—normality of residuals and homogeneity of variances—should be formally checked (e.g., Shapiro-Wilk, Levene's test); prior examinations of *ToothGrowth* generally support these assumptions. The significant interaction underscores a key principle in factorial designs: when factors interact, optimal inference requires examining conditional effects rather than marginal averages. 
+
+Practically, this means dosage-specific recommendations for supplement choice are more appropriate than blanket statements favoring OJ or VC. Future analyses could model dose as a continuous predictor or incorporate post-hoc pairwise comparisons with adjustment for multiple testing. In summary, both supplement type and vitamin C dose significantly influence tooth growth in guinea pigs, but their combined effect is interactive. This finding highlights the importance of including and interpreting interaction terms to avoid oversimplified conclusions in experimental research involving multiple categorical factors.
+
+```{r}
+# Simple effects : effect of dose within each supplement type
+emm_2way <- emmeans(model_2way, ~ dose | supp)
+pairs(emm_2way, adjust = "tukey")
+```
+
+Tukey-adjusted pairwise comparisons examined dose effects within each supplement. For OJ, tooth growth at 0.5 mg was significantly lower than at 1.0 mg (estimate = −9.47, *p* < .0001) and 2.0 mg (−12.83, *p* < .0001), but the 1.0 vs. 2.0 mg difference was non-significant (−3.36, *p* = .106). For VC, all dose contrasts were significant: 0.5 mg yielded less growth than 1.0 mg (−8.79, *p* < .0001) and 2.0 mg (−18.16, *p* < .0001), and 1.0 mg was also significantly lower than 2.0 mg (−9.37, *p* < .0001). These results clarify the significant *supp* × *dose* interaction: while both supplements show dose-response trends, VC exhibits a more consistent, graded increase across all doses, whereas OJ's effect plateaus between 1.0 and 2.0 mg.
+
+```{r}
+# Interaction plot
+emmip( model_2way, supp ~ dose, CIs = TRUE )
+```
+
+The interaction plot visualizes the significant supp × dose interaction on tooth growth. At the lowest dose (0.5 mg), OJ produces substantially higher predicted growth (~13.5) compared to VC (~8). This advantage persists at 1.0 mg (OJ ≈23 vs. VC ≈17). However, at 2.0 mg, both supplements converge at similar growth levels (~26), indicating the supplement difference diminishes at higher doses.
+
+The non-parallel lines confirm the statistical interaction: OJ shows a steep increase from 0.5 to 1.0 mg, then plateaus, while VC demonstrates a more consistent, linear dose-response relationship across all levels. Error bars (confidence intervals) show minimal overlap at lower doses but considerable overlap at 2.0 mg, supporting the pairwise comparison results where OJ's advantage is significant at lower doses but disappears at the highest dose.
+
+### **Residuals Analysis**
+```{r, fig.width = 8, fig.height = 6}
+# Standard diagnostic plots
+par(mfrow =c(2 ,2))
+plot(model_aov) # For one -way model
+par(mfrow =c(1 ,1))
+```
+
+### **Formal Tests for ANOVA Assumptions**
+Null hypothesis for Shapiro-Wilk test: Residuals are normally distributed.
+Null hypothesis for Levene's test: Variances are equal across groups (supplement and dosage).
+```{r}
+# Formal tests
+shapiro.test(residuals(model_2way))
+leveneTest(len ~ supp*dose, data = ToothGrowth)
+```
+
+### **Welch’s ANOVA: When Variances Are Unequal**
+
+> Classical ANOVA assumes equal variances. Welch’s ANOVA relaxes this:
+
+Classical ANOVA (assumes equal variances )
+```{r}
+aov(weight ~ group, data = PlantGrowth )
+
+# Welch ’s ANOVA ( robust to heteroscedasticity )
+oneway.test(weight ~ group, data = PlantGrowth,
+            var.equal = FALSE )
+```
+
+### **Post-Hoc Tests for Welch’s ANOVA**
+```{r}
+library(rstatix)
+games_howell_test(weight ~ group, data = PlantGrowth)
+```
+
+
+# **NON-PARAMERICS TESTS**
+## **1. Wilcoxon Rank-Sum Test (Mann-Whitney U Test)**
+
+> Mann-Whitney U test is a non-parametric test used to compare the medians of two independent groups when the data do not meet the assumptions of a t-test (e.g., normality). It assesses whether one group tends to have higher values than the other.
+
+```{r}
+# Example: Wilcoxon rank-sum test
+group1 <- c(5, 6, 7, 8, 5, 3, 6, 7, 8, 10)
+group2 <- c(8, 9, 10, 12, 11, 16, 17, 18, 22, 18)
+
+data2 <- data.frame(group1, group2)
+head(data2)
+```
+
+### Null hypothesis
+
+> The null hypothesis (H0) for the Wilcoxon rank-sum test is that the distributions of the two groups are identical, meaning there is no difference in medians between the groups. 
+
+> The alternative hypothesis (H1) is that the distributions differ, indicating a significant difference in medians.
+
+```{r}
+# Perform Wilcoxon rank-sum test
+wilcoxon_result <- wilcox.test(group1,group2, data = data2, exact = FALSE)
+
+# Print results
+print(wilcoxon_result)
+```
+
+With the W = 3.5, p-value = 0.0004847, we reject the null hypothesis and conclude that there is a significant difference in medians between group1 and group2. The low p-value indicates strong evidence against the null hypothesis, suggesting that the distributions of the two groups are not identical.
+
+### Using Gapminder Data set
+```{r}
+library(gapminder)
+data("gapminder")
+head(gapminder)
+```
+
+### Select Life Expectancy for Europe and Africa
+```{r}
+library(tidyverse)
+data2 <- gapminder %>%
+  dplyr::select(continent, lifeExp)%>%
+  dplyr::filter(continent == "Africa"|
+                  continent == "Europe")
+data2
+```
+
+
+> Plot the Two Histogram of Life Expectancy for Africa and Europe in One Plot
+
+```{r}
+ggplot(data2, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(color = "black",position = "identity", alpha = 0.5, bins = 30) +
+  labs(title = "Life Expectancy Distribution by Continent",
+       x = "Life Expectancy",
+       y = "Count") +
+  scale_fill_manual(values = c("Africa" = "blue", "Europe" = "red"))
+```
+
+> Plot the Two Histogram of Life Expectancy for Africa and Europe in One Plot and add a vertical line for the median
+
+```{r}
+ggplot(data2, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(color = "black", position = "identity", alpha = 0.5, bins = 30) +
+  geom_vline(aes(xintercept = median(lifeExp[continent == "Africa"]), color = "Africa Median"), linetype = "dashed") +
+  geom_vline(aes(xintercept = median(lifeExp[continent == "Europe"]), color = "Europe Median"), linetype = "dashed") +
+  labs(title = "Life Expectancy Distribution by Continent with Medians",
+       x = "Life Expectancy",
+       y = "Count") +
+  scale_fill_manual(values = c("Africa" = "blue", "Europe" = "red")) +
+  scale_color_manual(name = "Medians", values = c("Africa Median" = "blue", "Europe Median" = "red"))
+```
+
+### **Run the Test**
+
+### **Null and Alternative Hypotheses**
+- Null hypothesis: The median life expectancy is the same for Africa and Europe.
+
+- Alternative hypothesis: The median life expectancy is different between Africa and Europe.
+
+```{r}
+wilcoxon_result <- wilcox.test(lifeExp~continent, data = data2, exact = FALSE)
+print(wilcoxon_result)
+```
+
+### Compare the Median Life Expectancy Between Oceania and Europe
+```{r}
+data3 <- gapminder %>%
+  dplyr::select(continent, lifeExp) %>%
+  dplyr::filter(continent == "Oceania" | 
+                  continent == "Europe")
+data3
+```
+
+>  Plot the Two Histogram of Life Expectancy for Oceania and Europe in One Plot
+
+```{r}
+ggplot(data3, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(color = "black",position = "identity", alpha = 0.5, bins = 30) +
+  geom_vline(aes(xintercept = median(lifeExp[continent == "Oceania"]), color = "Oceania Median"), linetype = "dashed") +
+  geom_vline(aes(xintercept = median(lifeExp[continent == "Europe"]), color = "Europe Median"), linetype = "dashed") +
+  labs(title = "Life Expectancy Distribution by Continent with Medians",
+       x = "Life Expectancy",
+       y = "Count") +
+  scale_fill_manual(values = c("Oceania" = "green", "Europe" = "red")) +
+  scale_color_manual(name = "Medians", values = c("Oceania Median" = "green", "Europe Median" = "red"))
+```
+
+### **Grouped Summaries**
+```{r}
+data3 %>%
+  group_by(continent) %>%
+  summarise(median_lifeExp = median(lifeExp, na.rm = TRUE),
+            mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+            max_lifeExp = max(lifeExp, na.rm = TRUE),
+            min_lifeExp = min(lifeExp, na.rm = TRUE),
+            sd_lifeExp = sd(lifeExp, na.rm = TRUE)) %>%
+  print()
+```
+
+### **Run the Test**
+```{r}
+wilcoxon_result2 <- wilcox.test(lifeExp ~ continent, data = data3, exact = FALSE)
+print(wilcoxon_result2)
+```
+
+## **2. Kruskal-Wallis Test**
+
+> The Kruskal-Wallis test is a non-parametric method for testing whether samples originate from the same distribution. It is used to compare three or more independent groups of sampled data. The test does not assume a normal distribution and is an extension of the Mann-Whitney U test to more than two groups.
+
+
+### **Create the Data set**
+```{r}
+data <- data.frame(
+  group = factor(c("A", "A", "A", "B", "B", "B", "C", "C", "C")),
+  value = c(5, 6, 7, 8, 9, 10, 11, 12, 13))
+data
+```
+
+## **Grouped Boxplot**
+```{r}
+ggplot(data, aes(x = group, y = value, fill = group)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Values by Group",
+       x = "Group",
+       y = "Value") +
+  scale_fill_manual(values = c("A" = "lightblue", "B" = "lightgreen", "C" = "lightcoral"))
+```
+
+## **Null and Alternative Hypotheses**
+- Null hypothesis: The median values are the same across all groups (A, B, and C).
+- Alternative hypothesis: At least one group has a different median value compared to the others.
+
+# Perform Kruskal-Wallis test
+```{r}
+kruskal_result <- kruskal.test(value ~ group, data = data)
+kruskal_result
+```
+
+### **Kruskall Wallis Using Gapminder Data set; LifeExp ~ Continents**
+### Summary Statistics to find Grouped Median Life Expectancy Across Continents
+```{r}
+gapminder %>%
+  group_by(continent) %>%
+  summarise(median_lifeExp = median(lifeExp, na.rm = TRUE),
+            mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+            max_lifeExp = max(lifeExp, na.rm = TRUE),
+            min_lifeExp = min(lifeExp, na.rm = TRUE),
+            sd_lifeExp = sd(lifeExp, na.rm = TRUE)) %>%
+  arrange(desc(median_lifeExp)) %>%
+  print()
+```
+
+### Plot the Life Expectancy Distribution by Continent and Add Vertical Lines for the Median
+```{r}
+ggplot(gapminder, aes(x = lifeExp, fill = continent, color = "black")) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) +
+  labs(title = "Life Expectancy Distribution by Continent",
+       x = "Life Expectancy",
+       y = "Count") +
+  scale_fill_manual(values = c("Africa" = "blue", "Europe" = "red", "Asia" = "green", "Americas" = "purple", "Oceania" = "orange"))
+```
+
+# Add vertical lines for the median of each continent
+```{r}
+ggplot(gapminder, aes(x = lifeExp, fill = continent)) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) +
+  geom_vline(data = gapminder %>% group_by(continent) %>% summarise(median_lifeExp = median(lifeExp)), 
+             aes(xintercept = median_lifeExp, color = continent), linetype = "dashed") +
+  labs(title = "Life Expectancy Distribution by Continent with Medians",
+       x = "Life Expectancy",
+       y = "Count") +
+  scale_fill_manual(values = c("Africa" = "blue", "Europe" = "red", "Asia" = "green", "Americas" = "purple", "Oceania" = "orange")) +
+  scale_color_manual(name = "Medians", values = c("Africa" = "blue", "Europe" = "red", "Asia" = "green", "Americas" = "purple", "Oceania" = "orange"))
+```
+
+### **Boxplot for the Median Life Expectancy by Continent**
+```{r}
+ggplot(gapminder, aes(x = continent, y = lifeExp, fill = continent)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Life Expectancy by Continent",
+       x = "Continent",
+       y = "Life Expectancy") +
+  scale_fill_manual(values = c("Africa" = "blue", "Europe" = "red", "Asia" = "green", "Americas" = "purple", "Oceania" = "orange"))
+```
+
+### **Run the Test**
+
+### **Null and Alternative Hypotheses**
+
+- Null hypothesis: The median life expectancy is the same across all continents.
+- Alternative hypothesis: At least one continent has a different median life expectancy compared to the others.
+
+```{r}
+kruskal_result2 <- kruskal.test(lifeExp ~ continent, data = gapminder)
+print(kruskal_result2)
+```
+
+### **Post Hoc Analysis**
+```{r}
+### bring back scientific notation
+options(scipen = 0)
+```
+
+```{r}
+library(FSA)
+dunn_result <- dunnTest(lifeExp ~ continent, data = gapminder, method = "bh")
+print(dunn_result)
+```
+
+## **Homework**
+### **Practice ANOVA and Non-Parametric Tests**
+
+* Use the aov() function for one-way and two-way ANOVA.
+* Use TukeyHSD() for post-hoc analysis.
+* Use wilcox.test() for the Wilcoxon rank-sum test.
+* Use kruskal.test() for the Kruskal-Wallis test.
+
+### **Exercise A: Import a Dataset**
+
+* Download a public dataset (customerData)
+* Load it into R using import() or read.csv()
+* Print first few rows and check structure
+
+### **Exercise B: One-Way ANOVA**
+
+* Identify a numeric outcome variable and a categorical grouping variable
+* Run a one-way ANOVA
+* Interpret the result
+
+### **Exercise C: Post-Hoc Test**
+
+* If ANOVA is significant, run Tukey’s HSD
+* Report which groups differ significantly
+
+## **Exercise D: Two-Way ANOVA**
+
+* Include a second categorical variable
+* Interpret both main effects and interaction
+
+## **Exercise E: Non-Parametric Tests**
+
+* Check assumptions of ANOVA (normality, homogeneity)
+* If violated, run Kruskal-Wallis or Wilcoxon tests instead
+* Interpret the result
+
+## **Exercise F: Write a Summary**
+
+* Summarize your findings clearly in plain language
+* Include:
+   * What question you were answering
+   * Which variables were tested
+   * Whether the result was significant
+   * What conclusion can be drawn
+   
+   
+   
+   

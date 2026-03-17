@@ -1,0 +1,241 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# INTRODUCTION TO STATISTICAL DATA ANALYSIS USING R & RSTUDIO
+
+## Session 3: Data Manipulation with dplyr
+
+### Hands-On Exercises
+
+### 1. Install and Load the packages "dplyr", "graphics", "MASS"
+
+```{r}
+#install.packages(c("dplyr", "graphics", "MASS"))
+```
+
+### Load the libraries
+```{r}
+library(dplyr)
+library(graphics)
+library(MASS)
+```
+
+### Set a working Directory
+```{r}
+setwd("D:/New Program/Training Outline/Training Materials")
+```
+
+### Import dataset
+```{r}
+gss <-read.csv("GSSsubset.csv")
+head(gss)
+```
+
+### Data Manipulation Techniques
+* Filtering rows
+* selecting columns
+* mutating
+* arranging
+* summarizing
+* grouping
+* chaining
+* subsetting
+* aggregating
+
+### 2. Using filter() ***Select rows that meet specific conditions.
+
+### Filter and have Participants who are Married
+### Single Filter Function
+```{r}
+gss_marital <- gss%>%
+  filter(marital =="MARRIED")
+head(gss_marital, 20)
+```
+
+### Multiple Filter Function
+```{r}
+library(summarytools)
+freq(gss, degree)
+```
+
+### Filter and have Participants who are Bachelor, Graduate or Junior College
+```{r}
+gss_degree <- gss %>%
+  filter(degree == "BACHELOR"|
+           degree == "GRADUATE"|
+           degree == "JUNIOR COLLEGE")
+
+View(gss_degree)
+```
+
+### Using %in% operator ['Match Operator'] for Multiple Conditions (degree ["BACHELOR", "GRADUATE", "JUNIOR COLLEGE"]), (marital ["MARRIED", "DIVORCED"])
+```{r}
+gss_degree <- gss %>%
+  filter(
+    degree %in% c("BACHELOR", "GRADUATE", "JUNIOR COLLEGE"),
+    marital %in% c("MARRIED", "DIVORCED")
+  )
+
+View(gss_degree)
+```
+
+### Filter rows where age <= 20
+```{r}
+gss_age <- gss %>% 
+  filter(age <=20)
+View(gss_age)
+```
+
+### 3. Using select() ***Choose specific columns from the dataset.
+
+### Select only 'sex', 'income' and 'marital status' columns
+```{r}
+head(gss)
+```
+
+```{r}
+attach(gss)
+gss_selected <- gss %>%
+  dplyr::select(sex, income, marital)
+head(gss_selected)
+```
+
+### 4. Using mutate() ***Create new variables or modify existing ones.
+
+### Add a new column 'salary_category' based on income
+
+### Using 'if_else' from dplyr
+```{r}
+gss_mutated <- gss %>%
+  mutate(salary_category = if_else(income > 50000, "High", "Low"))
+
+gss_mutated
+```
+
+### Using 'ifelse' from base R
+```{r}
+gss_mutated <- gss %>% 
+  mutate(salary_category = ifelse(income > 50000, "High", "Low"))
+
+head(gss_mutated)
+```
+
+
+### Evaluate the Frequency of Low and High Income Earners
+#### Using frq() function from sjmisc library
+```{r}
+library(sjmisc)
+frq(gss_mutated, salary_category)
+```
+
+### Using freq() function from summarytools library
+```{r}
+library(summarytools)
+freq(gss_mutated$salary_category)
+```
+
+### 5. Using arrange()***Sort rows based on one or more variables.
+### Arrange data by Ascending income
+```{r}
+gss_income_arranged <- gss %>% 
+  arrange(income)
+head(gss_income_arranged)
+```
+
+### Arrange data by descending income
+```{r}
+gss_income_arranged <- gss %>% 
+  arrange(desc(income))
+head(gss_income_arranged)
+```
+
+### Alternatively
+```{r}
+gss_arranged <- gss |> 
+  arrange(desc(income))
+head(gss_arranged)
+```
+
+### 6. Using summarize()****Compute summary statistics for groups.
+### Calculate mean income grouped by gender
+```{r}
+summarized_data <- gss %>%
+  group_by(sex)%>%
+  summarize(Mean_Income = mean(income, na.rm = TRUE),
+            Median_Income = median(income, na.rm = TRUE),
+            Maximum_Income = max(income, na.rm = TRUE),
+            Minimum_Income = min(income, na.rm = TRUE))
+summarized_data
+```
+
+### Calculate mean income grouped by Degree Qualification
+```{r}
+summarized_data <- gss %>%
+  group_by(degree)%>%
+  summarize(Mean_Income = mean(income, na.rm = TRUE),
+            Median_Income = median(income, na.rm = TRUE),
+            Maximum_Income = max(income, na.rm = TRUE),
+            Minimum_Income = min(income, na.rm = TRUE))%>%
+  arrange(desc(Mean_Income))
+summarized_data
+```
+
+### 7. Chaining Operations with %>% ***Combine multiple operations into a single pipeline.
+### Chain multiple operations
+```{r}
+gss_processed <- gss %>% 
+  filter(age > 30) %>%                # Step 1: Filter rows where age > 30
+  dplyr::select(degree, income, sex) %>%    # Step 2: Select specific columns
+  mutate(income_category = ifelse(income > 50000, "High", "Low")) %>%  # Step 3: Add a new column
+  group_by(income_category)%>%
+  summarize(Mean_Income = mean(income, na.rm = TRUE))%>%
+  dplyr::arrange(desc(Mean_Income))               # Step 4: Arrange by descending income
+
+head(gss_processed)
+```
+
+### 8. Reorganize the dataset
+### Subsetting data
+```{r}
+gss[10,2]                 # tenth row second column
+gss[,4]                  # first column (selecting)
+gss[1,]                  # first row (filtering)
+new_data <-gss[,2:4]                # second to fourth column
+head(new_data)
+```
+
+### subsetting by specific criteria
+```{r}
+gss$income
+above50 <-gss[gss$income >= 50000,]
+above50
+gss$degree
+graduate <- gss[gss$degree == "GRADUATE",]
+graduate
+gss$marital
+divorced <- gss[gss$marital=="DIVORCED",]
+divorced
+```
+
+### 8. Summary report
+```{r}
+aggregate(income ~ sex, data = gss, FUN = mean)  #mean income for each gender
+aggregate(income ~ sex, data = gss, min)# maximum income for each gender
+aggregate(income ~ sex + degree, data = gss, mean) #mean income by gender and level of education
+aggregate(income ~ marital + sex + degree, data = gss, mean)
+```
+
+## Homework
+* Practice dplyr Functions :
+* Use the dplyr package to manipulate a "car"dataset.
+* sample code to get the data
+* Perform the following tasks:
+* Filter rows based on specific conditions.(Wheelbase>110)
+* Select specific columns.
+* Create or modify variables using mutate().
+* Sort rows using arrange().
+* Compute summary statistics using summarize().
+
+

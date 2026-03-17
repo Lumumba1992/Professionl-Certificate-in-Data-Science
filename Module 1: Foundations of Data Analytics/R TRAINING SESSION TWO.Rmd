@@ -1,0 +1,207 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# INTRODUCTION TO STATISTICAL DATA ANALYSIS USING R & RSTUDIO
+
+### Session 2: Data Importation, Cleaning, and Exploratory Data Analysis (EDA)
+
+### Hands-On Exercises
+
+### Set a working Directory
+```{r}
+setwd("D:/New Program/Training Outline/Training Materials")
+```
+
+### 1. Importing Data
+
+### Example 1: Importing an Excel file
+```{r}
+library(readxl)
+```
+
+```{r}
+data <- read_excel("Data.xlsx")
+head(data)
+```
+
+### Example 2: Importing a CSV file
+```{r}
+data <-read.csv("GSSsubset.csv")
+head(data, 10)
+```
+
+### View the Entire Imported File
+```{r}
+View(data)
+```
+
+```{r}
+credit <- read.csv("german_credit__data.csv")
+View(credit)
+```
+
+```{r}
+library(ggplot2)
+ggplot(data = credit, aes(x = Credit.amount))+
+  geom_histogram(color = "red", fill = "blue")+
+  labs(title = "Histogram Showing the Distributiob of Credit Amount", 
+       x = "Credit Amount",
+       y = "Frequency")+
+  theme_classic()
+```
+
+```{r}
+library(summarytools)
+freq(credit, Saving.accounts)
+```
+
+## 2. Handling Missing Data
+### Identify missing values
+```{r}
+missing_value <- colSums(is.na(data))
+data.frame(missing_value)
+```
+
+### Example 2: Remove rows with missing values
+```{r}
+clean_data <- na.omit(data)
+print(head(clean_data))
+```
+
+### Example 3: Impute missing values with the mean/mediam
+```{r}
+library(ggplot2)
+ggplot(data = data, aes(x= age))+
+  geom_histogram(color = "red", fill = "blue")
+```
+
+```{r}
+data$age[is.na(data$age)] <- mean(data$age, na.rm = TRUE)
+#print(head(data))
+```
+
+### Confirm the Imputation of Missing Values for the age variable
+```{r}
+missing_value <- colSums(is.na(data))
+data.frame(missing_value)
+```
+
+### 3. Handling Outliers
+
+### Example 1: Detect outliers using boxplot
+```{r}
+ggplot(data = data, aes(x = income))+
+  geom_boxplot()+
+  labs(title = "Boxplot Showing the Distribution of Income",
+       x = "Income",
+       y = "Frequency")+
+  theme_bw()
+```
+
+### Example 2: Handling outliers using IQR
+```{r}
+Q1 <- quantile(data$income, 0.25)
+Q3 <- quantile(data$income, 0.75)
+IQR <- Q3 - Q1
+lower_bound <- Q1 - 1.5 * IQR
+upper_bound <- Q3 + 1.5 * IQR
+```
+
+### Clean the Data
+```{r}
+data_cleaned <- data[data$income >= lower_bound & data$income <= upper_bound, ]
+print(head(data_cleaned))
+```
+
+```{r}
+ggplot(data = data_cleaned, aes(x = income))+
+  geom_boxplot()+
+  labs(title = "Boxplot Showing the Distribution of Income",
+       x = "Income",
+       y = "Frequency")+
+  theme_bw()
+```
+
+## Exploratory Data Analysis (EDA)
+
+### 1. Summary Statistics
+```{r}
+library(psych)
+describe(data)
+```
+
+
+### Calculate the Mean, Median, Variance, Standard Deviation
+```{r}
+mean_value <- mean(data$income, na.rm = TRUE)
+median_value <- median(data$income, na.rm = TRUE)
+variance_value <- var(data$income, na.rm = TRUE)
+sd_value <- sd(data$income, na.rm = TRUE)
+```
+
+### Print the Summary Statistics
+```{r}
+print(paste("Mean:", mean_value))
+print(paste("Median:", median_value))
+print(paste("Variance:", variance_value))
+print(paste("Standard Deviation:", sd_value))
+```
+
+### 2. Data Visualization
+* Histogram using base R
+```{r}
+hist(data$income, 
+     xlab = "Income",
+     ylab = "Frequency",
+     main = "Histogram Showing Distribution of Income",
+     breaks = 10,
+     col = "steelblue")
+```
+
+* Boxplot using base R
+```{r}
+boxplot(data$income, 
+        main = "Income Distribution", 
+        ylab = "Income", 
+        col = "tomato")    
+```
+
+* Box plot of Income by Gender
+```{r}
+boxplot(data$income~data$degree, 
+        main = "Income Distribution by Degree Qualification", 
+        ylab = "Income", 
+        col = "steelblue")
+```
+
+
+* Scatterplot using ggplot2
+```{r}
+library(ggthemes)
+ggplot(data, aes(x=age, y = income))+
+  geom_point()+
+  labs(title = "Scatterplot Showing the Relationship Between Age and Income",
+       x = "Age",
+       y = "Income")+
+  theme_bw()
+```
+
+## Homework
+
+* Import a Dataset :
+* Download a dataset (Use German Credit data set).
+* Import the dataset into R using read.csv() or read_excel().
+* Clean the Dataset :
+* Handle missing values by either removing them or imputing with the mean/median.
+* Estimate the Missing Values for the Categorical Variable
+* Detect and treat outliers using the IQR method.
+* Perform Exploratory Data Analysis (EDA) :
+* Calculate summary statistics (mean, median, variance, standard deviation).
+* Create visualizations (histograms, boxplots, scatterplots) to explore relationships in the data.
+
+
+
+
+
+

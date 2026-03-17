@@ -1,0 +1,443 @@
+---
+title: "REGRESSION AND CORRELATIONA ANALYSIS"
+author: "Lumumba Wandera Victor"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 5)
+```
+
+## **Set up the Current Working Directory**
+```{r}
+setwd("D:/New Program/Training Outline/Professional Certificate in Data Analysis")
+```
+
+### **Explore the Data set**
+```{r}
+# Load data
+data(mtcars)
+head(mtcars)
+```
+
+```{r}
+# View structure
+str(mtcars)
+```
+
+### **Description of the Dataset**
+mtcars {datasets}	R Documentation
+Motor Trend Car Road Tests
+
+**Description**
+
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+Usage
+mtcars
+Format
+A data frame with 32 observations on 11 (numeric) variables.
+
+[, 1]	mpg	Miles/(US) gallon
+[, 2]	cyl	Number of cylinders
+[, 3]	disp	Displacement (cu.in.)
+[, 4]	hp	Gross horsepower
+[, 5]	drat	Rear axle ratio
+[, 6]	wt	Weight (1000 lbs)
+[, 7]	qsec	1/4 mile time
+[, 8]	vs	Engine (0 = V-shaped, 1 = straight)
+[, 9]	am	Transmission (0 = automatic, 1 = manual)
+[,10]	gear	Number of forward gears
+[,11]	carb	Number of carburetors
+
+
+## **Scatter Plots are Essential Before Regression and Correlation**
+```{r}
+library ( ggplot2 )
+
+# Scatterplot : Weight vs MPG
+ggplot(mtcars, aes(x=wt, y=mpg)) +
+  geom_point( color ="blue", size =1) +
+  geom_smooth( method ="lm", se=TRUE, color ="red") +
+  labs (title =" Relationship between Weight and MPG",
+         x=" Weight (1000 lbs)", y=" Miles per Gallon ")
+```
+
+** NOte**
+There is a strong negative correlation between weight and miles per gallon. As the weight of the car increases, the miles per gallon decreases.
+
+## **Comput Pearson Correlation Analysis in R**
+```{r}
+# Compute Pearson correlation
+cor(mtcars$wt, mtcars$mpg, method = "pearson")
+```
+
+### **Test significance**
+
+### **State the null and alternative hypotheses:**
+
+- H0: There is no significant correlation between weight and miles per gallon (r = 0).
+- H1: There is a significant correlation between weight and miles per gallon (r ≠ 0).
+
+### **Decision Rule:**
+- If the p-value is less than the significance level (commonly set at 0.05), we reject the null hypothesis. Otherwise, we fail to reject the null hypothesis.
+
+```{r}
+cor.test(mtcars$wt, mtcars$mpg, method = "pearson")
+```
+
+**Interpretation:**
+The Pearson correlation coefficient (r) is -0.867, indicating a strong negative correlation between weight and miles per gallon. The p-value is less than 0.05, which means we reject the null hypothesis and conclude that there is a statistically significant correlation between weight and miles per gallon.
+
+### **When Normality is Violated of Data is Ordinal**
+```{r}
+# Compute Spearman correlation
+cor(mtcars$wt, mtcars $mpg, method = "spearman")
+```
+
+```{r}
+# Test significance
+cor.test(mtcars$wt, mtcars$mpg, method = "spearman")
+```
+
+### **Correlation Metrix**
+### **Examine relationships between multiple variables simultaneously.**
+```{r}
+# Select numeric columns
+num_vars <- mtcars[, c("mpg", "cyl", "disp", "hp", "wt")]
+
+# Correlation matrix
+cor_matrix <- cor(num_vars, method = "pearson")
+print(round(cor_matrix, 2))
+```
+
+### **Visualize Correlation Matrix**
+```{r}
+library(corrplot)
+corrplot(cor_matrix, 
+         #title = "Pairwise Correlation Plot",
+         method = "color", 
+         #type = "upper",
+         addCoef.col = "white",
+         tl.col = "black", 
+         tl.srt = 45)
+```
+
+### **SLR  Model in R**
+```{r}
+## Fit Simple Linear Regression
+model_slr <- lm(mpg ~ wt, data = mtcars )
+```
+
+```{r}
+summary(model_slr)
+```
+
+### **State the Null and Alternative Hypotheses:**
+- H0: There is no statistically significant effect of weight of the car on miles per gallon (the coefficient for weight is equal to zero) at 5% level of significance.
+
+- H1: There is a statistically significant effect of weight of the car on miles per gallon (the coefficient for weight is not equal to zero) at 5% level of significance.
+
+### **Simple Linear Regression Equation**
+$$
+\text{Equation:} = \hat{MPG} = 37.2851 -5.3445 \times \text{wt}
+$$
+
+**Interpretation:**
+The coefficient for weight (wt) is -5.344, which means that for every 1 unit increase in weight (1000 lbs), the miles per gallon (mpg) decreases by approximately 5.344 units, holding all else constant. The p-value for the weight variable is less than 0.05, indicating that the effect of weight on miles per gallon is statistically significant at 5% level of significance.
+
+### **Null and Alternative Hypotheses for the Overall Model (F-Test):**
+
+- H0: The overall regression model is not statistically significant (the model does not explain a significant portion of the variance in miles per gallon).
+
+- H1: The overall regression model is statistically significant (the model explains a significant portion of the variance in miles per gallon).
+
+### **Decision Rule:**
+- If the p-value for the F-test is less than the significance level (commonly set at 0.05), we reject the null hypothesis. Otherwise, we fail to reject the null hypothesis.
+
+**Interpretation of F-Test:**
+The F-statistic is 91.38 with a p-value of 1.294e-10, which is less than 0.05. Therefore, we reject the null hypothesis and conclude that the overall regression model is statistically significant, meaning that weight of the car significantly explains the variance in miles per gallon.
+
+
+### **Report R-squared and Adjusted R-squared:**
+- R-squared: 0.7528
+- Adjusted R-squared: 0.7446
+**Interpretation:**
+
+The R-squared value of 0.7528 indicates that approximately 75.28% of the variance in miles per gallon (mpg) can be explained by the weight of the car (wt). The adjusted R-squared value of 0.7446 accounts for the number of predictors in the model and provides a more accurate measure of the model's explanatory power. In this case the adjusted R-squared is slightly lower than the R-squared, which suggests that the model is a good fit for the data, but there may be some room for improvement by including additional predictors.
+
+### **Confidence Intervals for the Coefficients:**
+```{r}
+confint(model_slr, level = 0.95)
+```
+
+**Interpretation:**
+The 95% confidence interval for the intercept (37.2851) ranges from 33.45 to 41.12, which means we are 95% confident that the true intercept value lies within this range. The 95% confidence interval for the weight coefficient (-5.3445) ranges from -6.49 to -4.20, which means we are 95% confident that the true effect of weight on miles per gallon lies within this range. Since the confidence interval for the weight coefficient does not include zero, it further supports the conclusion that weight has a statistically significant effect on miles per gallon at the 5% level of significance.
+
+### **Prediction Using the SLR Model:**
+```{r}
+# New data frame
+new_car <- data.frame(wt = 3.5)
+new_car
+```
+
+### **Narrow confidence interval for the mean response**
+```{r}
+# Predict with Confidence Interval
+predict(model_slr, newdata = new_car, 
+         interval = "confidence")
+```
+
+#### **Wider confidence interval for the mean response**
+```{r}
+# Predict with Prediction Interval ( wider )
+predict(model_slr, newdata = new_car ,
+        interval = "prediction")
+```
+
+## **Using Hypertension Data Set to Develop SLR**
+```{r}
+# Load data
+htn <- read.csv("htn_dat.csv")
+head(htn)
+```
+
+### **Explore the Data
+```{r}
+## Check the Structure of the Data
+str(htn)
+```
+
+### **Check the Presence of Missing Value
+```{r}
+# Check for missing values as a dataframe
+data.frame(colSums(is.na(htn)))
+```
+
+### **Alternatively**
+```{r}
+# Check for missing values as a dataframe
+missing_values <- data.frame(
+  Variable = names(htn),
+  Missing_Count = sapply(htn, function(x) sum(is.na(x))),
+  Missing_Percentage = sapply(htn, function(x) mean(is.na(x)) * 100)
+)
+missing_values
+```
+
+### **Check Distribution  of BMI**
+```{r}
+ggplot(htn, aes(x = BMI)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of BMI", x = "BMI", y = "Frequency")
+```
+
+### **Summmary Statistics to Check Skeweness**
+```{r}
+library(psych)
+describe(htn)
+```
+
+### **Handle Missing Values**
+i. Approach 1: Remove rows with missing values (complete case analysis)
+```{r}
+comp_data <- na.omit(htn)
+head(comp_data)
+```
+
+### **Check Missing Values after Cleaning**
+```{r}
+data.frame(colSums(is.na(comp_data)))
+```
+
+### **Scatter Plot to Show the Relationship between SBP and BMI**
+```{r}
+ggplot(comp_data, aes(x = BMI, y = SBP)) +
+  geom_point(color = "steelblue", size = 1) +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(title = "Relationship between BMI and SBP",
+       x = "Body Mass Index", y = "Systolic Blood Pressure")
+```
+
+### Estimate the SLR Model
+```{r}
+model_htn <- lm(SBP ~ BMI, data = comp_data, level = 0.95)
+summary(model_htn)
+```
+
+### **The Equation of the SLR Model**
+$$
+\hat{SBP} = 92.84148 + 0.85717 \times BMI
+$$
+
+### **Ranges for BMI**
+- Normal BMI: 18.5 to 24.9
+- Overweight BMI: 25 to 29.9
+- Obese BMI: 30 or higher
+
+### **The BMI of the New Patient**
+```{r}
+bmi= (75)/(1.75^2)
+bmi
+```
+
+### **Predict the BMI of the  Person above**
+```{r}
+new_person <- data.frame(BMI = bmi)
+new_person
+```
+
+```{r}
+# Predict SBP with Confidence Interval
+predict(model_htn, newdata = new_person, interval = "confidence")
+```
+
+```{r}
+# Predict SBP with Prediction Interval
+predict(model_htn, newdata = new_person, interval = "prediction")
+```
+
+### **Multiple Linear Regression (MLR) Model**
+
+- Predictors: wt and hp
+- Outcome: mpg
+
+### **State the Null and Alternative Hypotheses for the MLR Model:**
+- H0: There is no statistically significant effect of weight and horsepower on miles per gallon (the coefficients for weight and horsepower are equal to zero) at 5% level of significance.
+
+- H1: There is a statistically significant effect of weight and horsepower on miles per gallon (the coefficients for weight and horsepower are not equal to zero) at 5% level of significance.
+
+### **Select of Level of Significance**
+- Commonly set at 0.05
+
+#### **Collect the Data**
+
+#### **Run the Test (Multple Linear Regression Model)**
+```{r}
+model_mlr <- lm(mpg ~ wt + hp, data = mtcars)
+summary(model_mlr)
+```
+
+### **The Equation of the MLR Model**
+$$
+\hat{MPG} = 37.22727 - 3.877 \times \text{wt} - 0.031 \times \text{hp}
+$$
+
+### **Decision Rule for the MLR Model:**
+
+>If the p-value for a predictor is less than the significance level (commonly set at  0.05), we reject the null hypothesis for that predictor. Otherwise, we fail to reject the null hypothesis for that predictor.
+
+### **Interpretation of the MLR Model:**
+
+- The coefficient for weight (wt) is -3.877, which means that for every 1 unit increase in weight (1000 lbs), the miles per gallon (mpg) decreases by approximately 3.877 units, holding horsepower (hp) constant. The p-value for weight is less than 0.05, indicating that the effect of weight on miles per gallon is statistically significant at 5% level of significance.
+
+- The coefficient for horsepower (hp) is -0.031, which means that for every 1 unit increase in horsepower, the miles per gallon (mpg) decreases by approximately 0.031 units, holding weight (wt) constant. The p-value for horsepower is less than 0.05, indicating that the effect of horsepower on miles per gallon is statistically significant at 5% level of significance.
+
+### **Reporyt R-squared and Adjusted R-squared for the MLR Model:**
+- An R-squared value of 0.8268 indicates that approximately 82.68% of the variance in miles per gallon (mpg) can be explained by the weight and horsepower of the car. The adjusted R-squared value of 0.8148 accounts for the number of predictors in the model and provides a more accurate measure of the model's explanatory power. In this case, the adjusted R-squared is slightly lower than the R-squared, which suggests that the model is a good fit for the data, but there may be some room for improvement by including additional predictors or considering interactions between predictors.
+
+- An adjusted R-squared value of 0.8148 indicates that approximately 81.48% of the variance in miles per gallon (mpg) can be explained by the weight and horsepower of the car, after adjusting for the number of predictors in the model. This suggests that the model has a strong explanatory power, but there may still be some unexplained variance that could potentially be accounted for by including additional predictors or considering interactions between predictors.
+
+## **Model Diagnostics for the MLR Model**
+> Multicollinearity
+
+Multicollinearity occurs when two or more predictor variables in a multiple regression model are highly correlated with each other. This can lead to unstable estimates of the regression coefficients and make it difficult to determine the individual effect of each predictor on the outcome variable.
+
+```{r}
+library (car)
+# Calculate VIF
+vif(model_mlr)
+```
+
+### **Report VIF Values:**
+- VIF values for weight (wt) and horsepower is 1.766625 indicating that there is no significant multicollinearity between the predictors in the model. Generally, a VIF value greater than 5 or 10 is considered indicative of high multicollinearity, so in this case, the VIF values suggest that multicollinearity is not a concern for this model.
+
+### **Diagnostic Plots for the MLR Model**
+```{r, fig.height=8, fig.width=10}
+# Generate diagnostic plots
+par(mfrow =c(2 ,2))
+plot(model_mlr)
+par(mfrow =c(1 ,1))
+```
+
+### **Identify the Influential Observation as Indicared by Cook's Distance**
+```{r}
+# Calculate Cook's distance
+cooks_distance <- cooks.distance(model_mlr)
+# Identify influential observations
+influential_obs <- which(cooks_distance > (4 / nrow(mtcars)))
+influential_obs
+```
+
+### **Remove Influential Observation and Refit the Model**
+```{r}
+# Remove influential observation
+mtcars_no_influential <- mtcars[-influential_obs, ]
+# Refit the model without influential observation
+model_mlr_no_influential <- lm(mpg ~ wt + hp, data = mtcars_no_influential)
+summary(model_mlr_no_influential)
+```
+
+### **Inferential Test for Normality and Homoscedasticity**
+
+#### **Null and Alternative Hypotheses for Normality:**
+- H0: The residuals of the model are normally distributed.
+- H1: The residuals of the model are not normally distributed.
+```{r}
+# Normality test (Shapiro-Wilk test)
+shapiro.test(residuals(model_mlr))
+```
+
+```{r}
+# Normality test (Anderson-Darling test)
+library(nortest)
+ad.test(residuals(model_mlr))
+```
+
+```{r}
+ggplot(data = data.frame(residuals = residuals(model_mlr)), aes(sample = residuals)) +
+  geom_qq() +
+  geom_qq_line() +
+  labs(title = "Q-Q Plot of Residuals", 
+       x = "Theoretical Quantiles", 
+       y = "Sample Quantiles")
+```
+
+```{r}
+ggplot(data = data.frame(residuals = residuals(model_mlr)), aes(x = residuals)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  labs(title = "Histogram of Residuals", 
+       x = "Residuals", 
+       y = "Frequency")
+```
+
+
+#### **Null and Alternative Hypotheses for Homoscedasticity:**
+- H0: The residuals of the model have constant variance (homoscedasticity).
+- H1: The residuals of the model do not have constant variance (heteroscedasticity).
+
+```{r}
+# Homoscedasticity test (Breusch-Pagan test)
+library(lmtest)
+bptest(model_mlr)
+```
+
+#### **Null and Alternative Hypotheses for Independence:**
+- H0: The residuals of the model are independent (no autocorrelation).
+- H1: The residuals of the model are not independent (autocorrelation present).
+
+```{r}
+# independence test (Durbin-Watson test)
+dwtest(model_mlr)
+```
+
+
+
+
+
+
+
+
+

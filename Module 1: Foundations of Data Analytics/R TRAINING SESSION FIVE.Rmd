@@ -1,0 +1,579 @@
+---
+title: '**Session Five: Hypothesis Testing**'
+author: 'Trainer: Lumumba Wandera Victor'
+output:
+  html_document:
+    df_print: paged
+  html_notebook:
+    theme: readable
+    highlight: espresso
+---
+
+## **INTRODUCTION TO STATISTICAL DATA ANALYSIS USING R & RSTUDIO**
+
+## **Session 5: Hypothesis Testing**
+
+### Set Up the Current Working Directory
+```{r}
+setwd("D:/New Program/Training Outline/Professional Certificate in Data Analysis")
+```
+
+
+By the end of this session, you will be able to:
+- Understand the fundamental concepts of hypothesis testing , including null hypothesis (H₀) , alternative hypothesis (H₁) , p-values , and significance levels .
+
+### **Perform common statistical tests in R**
+
+   * One-sample t-test
+   
+   * Two-sample t-test
+   
+   - Paired t-test/Dependent t-test
+   - Unpaired t-test/Independent t-test
+   
+   * Chi-square test for independence
+   
+* Interpret test results in the context of real-world data.
+
+* Apply hypothesis testing to answer business or research questions.
+
+## **1. Introduction to Hypothesis Testing**
+
+### **What is Hypothesis Testing?**
+
+- It's a statistical method used to make decisions about populations based on sample data.
+
+### **Key Concepts**
+
+- Null Hypothesis (H₀):** Default assumption; no effect or difference
+- Alternative Hypothesis (H₁):** What we're trying to prove
+- p-value:** Probability of observing the result assuming H₀ is true
+- Significance Level (α):** Threshold to reject H₀ (usually 0.05)
+- Type I Error:** Rejecting H₀ when it is actually true
+- Type II Error:** Failing to reject H₀ when it is false
+
+✅ Decision Rule: If p-value < α → reject H₀ 
+
+## **Hands-On Exercises**
+
+### **1. One-Sample t-Test**
+
+Test whether the mean of a sample is significantly different from a specified value.
+
+### **One-sample t-test**
+The history of the **t-test** is a fascinating journey through the evolution of statistical methods, driven by practical needs and theoretical advancements. Here's a structured overview:
+
+### **Origins: William Sealy Gosset ("Student")**
+1. **Context at Guinness Brewery (Early 1900s):**  
+   - Gosset, a chemist and statistician at Guinness in Dublin, faced challenges in quality control with small sample sizes (e.g., evaluating barley yields). Large-sample methods (like the z-test) were impractical, as they required known population parameters and big datasets.
+   - Guinness prohibited employees from publishing under their own names, leading Gosset to use the pseudonym **"Student."**
+
+2. **Seminal Publication (1908):**  
+   - Gosset’s paper, *[The Probable Error of a Mean](https://www.jstor.org/stable/2331554)*, appeared in *Biometrika* (edited by Karl Pearson). It introduced the **t-statistic** and **t-distribution**, enabling inference for small samples by using the sample standard deviation instead of the population parameter.
+
+3. **Key Innovation:**  
+   - The **t-distribution** (heavier-tailed than the normal distribution) accounted for variability in small samples. Degrees of freedom (dependent on sample size) adjusted its shape, converging to the normal distribution as samples grew.
+
+---
+
+### **Formalization and Expansion: Ronald Fisher**
+- **1920s–1930s:** Fisher integrated Gosset’s work into the framework of **hypothesis testing** and **significance levels**, broadening its applications (e.g., comparing means, regression).  
+
+- **Fisher’s Contributions:**  
+  - Demonstrated robustness under normality assumptions.  
+  - Linked the t-test to **analysis of variance (ANOVA)** and experimental design.  
+  - Popularized the test in scientific communities, making it a cornerstone of inferential statistics.
+
+---
+
+### **Evolution of t-test Variants**
+- One-sample t-test:** Compare a sample mean to a known population mean.  
+- Independent two-sample t-test:** Compare means of two unrelated groups (with equal/unequal variance assumptions).  
+- Paired t-test:** Analyze matched pairs or repeated measurements.  
+- Welch’s t-test (1947):** An adaptation for unequal variances, bypassing the need for homogeneity.
+
+---
+
+### **Impact and Legacy**
+- Practical Applications:** Revolutionized fields requiring small-sample analysis (agriculture, medicine, psychology).  
+- Statistical Software:** Integration into tools (SPSS, R, Excel) democratized access, reducing reliance on manual calculations.  
+- Educational Staple:** A fundamental topic in statistics curricula, emphasizing hypothesis testing and experimental design.
+
+---
+
+### **Timeline Summary**
+- 1908:** Gosset publishes the t-test under "Student."  
+- 1920s–1930s:** Fisher formalizes its theoretical underpinnings.  
+- Mid-20th Century:** Development of variants (paired, independent, Welch’s).  
+- Late 20th Century:** Computational tools automate and expand its use.
+
+The t-test exemplifies how industrial challenges can spur statistical innovation, later refined by academia to become a universal tool in data analysis. Gosset’s pragmatism and Fisher’s theoretical rigor together shaped modern inferential statistics.
+
+Gosset’s paper, The Probable Error of a Mean, appeared in Biometrika (edited by Karl Pearson). It introduced the t-statistic and t-distribution, enabling inference for small samples by using the sample standard deviation instead of the population parameter.
+
+
+### **Step 1: State the Null and Alternative Hypothesis for the One-Sample t-Test**
+- Null Hypothesis (H₀): The mean of the sample is equal to the hypothesized population mean (μ = μ₀).
+
+- Alternative Hypothesis (H₁): The mean of the sample is not equal to the hypothesized population mean (μ ≠ μ₀).
+
+### **Step 2: Pick the Level of Significance**
+- Commonly set at 0.05 (5%)
+
+### **Step 3: Collect Data**
+
+### **Ages of People**
+```{r}
+sample <- c(18, 21, 20, 22, 16, 21, 24, 26, 28, 19)
+sample
+hypothesized_mean <- 21
+```
+
+
+### **Step 4: Perform one-sample t-test**
+```{r}
+result <- t.test(sample, mu = 21, alternative = "two.sided")
+print(result)
+```
+
+### **Step 5: Decision Rule**
+
+- If the p-value < 0.05, reject the null hypothesis (H₀). 
+We fail to reject the Null hypothesis
+
+### **Report the Conclusion**
+
+> Since the t = 0.43211, df = 9, p-value = 0.6758 which is greater than 0.05, we fail to reject the null hypothesis (H₀). This suggests that there is no statistically significant difference between the sample mean and the hypothesized population mean of 21 at 5% level of significance.
+
+#### **Real World Situation**
+
+### **Life Expectancy in Gapminder Dataset**
+```{r}
+library(gapminder)
+data = gapminder
+head(data)
+```
+
+### **State the Null and Alternative Hypothesis for the One-Sample t-Test**
+- Null Hypothesis (H₀): The mean life expectancy in the dataset is equal to the hypothesized population mean (μ = 72.5).
+
+- Alternative Hypothesis (H₁): The mean life expectancy in the dataset is not equal to the hypothesized population mean (μ ≠ 72.5).
+
+
+## **Select the Level of Significance**
+- Commonly set at 0.05 (5%)
+
+### **Remove Scientific Notation**
+```{r}
+options(scipen = 999)
+```
+
+### **Perform one-sample t-test**
+```{r}
+hypothesized.mean = 72.5
+result <- t.test(data$lifeExp, mu = 72.5, alternative = "two.sided", data = data)
+result
+```
+
+### **Decision Rule**
+- If the p-value < 0.05, reject the null hypothesis (H₀).
+> We reject the null hypothesis (H₀) since the p-value is less than 0.05.
+
+### **Conclusion and Reporting**
+> Since the t = -41.262, df = 1704, p-value < 2.2e-16 which is less than 0.05, we reject the null hypothesis (H₀). This suggests that there is a statistically significant difference between the mean life expectancy in the dataset and the hypothesized population mean of 72.5 at the 5% level of significance.
+
+### **2. Two-Sample t-Test**
+- Test whether the means of two independent samples are significantly different.
+
+
+### **Two-sample t-test (Ages of Wives and Husbands**
+```{r}
+data <- data.frame(wife = c(22, 24, 26, 28, 30, 23, 44, 26, 28, 30),
+                   husband = c(32, 34, 36, 38, 40, 33, 54, 36, 38, 40))
+data
+attach(data)
+```
+
+### **Assumptions of the Two-Sample t-Test**
+1. **Independence:** The two samples must be independent of each other.
+2. **Normality:** The data in each group should be approximately normally distributed.
+3. **Equal Variances:** The variances of the two groups should be equal (homogeneity of variance). This can be checked using Levene's test or Bartlett's test.
+4. **Random Sampling:** The samples should be randomly selected from the population.
+5. **Scale of Measurement:** The dependent variable should be measured on an interval or ratio scale.
+
+### **Shapiro Wilks Test for Normality**
+
+> Shapiro-Wilk test is a statistical test used to assess the normality of a dataset. It tests the null hypothesis that the data is normally distributed against the alternative hypothesis that it is not. A p-value less than the chosen significance level (commonly 0.05) indicates that the null hypothesis can be rejected, suggesting that the data does not follow a normal distribution.
+
+```{r}
+shapiro.test(data$wife)
+shapiro.test(data$husband)
+```
+
+### **Null and Alternative Hypothesis for Shapiro Wilks**
+- Null Hypothesis (H₀): The data is normally distributed.
+- Alternative Hypothesis (H₁): The data is not normally distributed.
+
+#### **Variance Equality**
+```{r}
+### Convert the data to long format
+library(tidyr)
+data_long <- pivot_longer(data, cols = c(wife, husband), names_to = "group", values_to = "age")
+data_long
+head(data_long)
+```
+
+```{r}
+data_long$group <- as.factor(data_long$group)
+head(data_long)
+```
+
+```{r}
+library(car)
+library(rstatix)
+attach(data_long)
+data_long %>% levene_test(age ~ group)
+```
+
+### **Null and Alternative Hypothesis for Levene's Test**
+- Null Hypothesis (H₀): The variances of the two groups are equal.
+- Alternative Hypothesis (H₁): The variances of the two groups are not equal
+
+
+### **Perform two-sample t-test**
+```{r}
+result <- t.test(wife, husband, alternative = "two.sided", var.equal = TRUE)
+result
+```
+
+#### **State the Null and Alternative Hypothesis for the Two-Sample t-Test**
+- Null Hypothesis (H₀): The mean age of wives is equal to the mean
+  age of husbands (μ₁ = μ₂).
+- Alternative Hypothesis (H₁): The mean age of wives is not equal to the
+  mean age of husbands (μ₁ ≠ μ₂).
+
+### **Decision Rule**
+- If the p-value < 0.05, reject the null hypothesis (H₀)
+> We reject the Null hypothesis (H₀) since the p-value is less than 0.05.
+
+### **Conclusion**
+> The t = -3.5913, df = 18, p-value = 0.002087 which is less than 0.05, we reject the null hypothesis (H₀). This suggests that there is a statistically significant difference in mean age between wives and husbands at the 5% level of significance.
+
+### **Real World Application**
+```{r}
+data <- gapminder
+head(data)
+```
+
+### **Select Two Continents (Europe and Africa)**
+```{r}
+df1 <- data %>%
+  select(continent, lifeExp) %>%
+  filter(continent %in% c("Europe", "Africa"))
+head(df1)
+```
+
+### **State the Null and Alternative Hypotheses**
+
+- Null hypothesis: The mean life expectancy in Europe is not statistically different from that of Africa at 5% level of significance.
+- Alternative hypothesis: The mean life expectancy in Europe is statistically different from that of Africa at 5% level of significance.
+
+### **Select the Level of Significance**
+> Commonly set at 0.05 (5%)
+
+### **Check Normality Assumption**
+```{r}
+shapiro.test(df1$lifeExp[df1$continent == "Europe"])
+shapiro.test(df1$lifeExp[df1$continent == "Africa"])
+```
+
+### **Run the Test**
+```{r}
+result <- t.test(lifeExp ~ continent, data = df1, var.equal = TRUE, alternative = "two.sided")
+result
+```
+
+### **State the Null and Alternative Hypothesis for the Two-Sample t-Test** 
+
+- Null Hypothesis (H₀): The mean life expectancy in Europe is equal to the mean life expectancy in Africa (μ₁ = μ₂).
+
+- Alternative Hypothesis (H₁): The mean life expectancy in Europe is not equal to the mean life expectancy in Africa (μ₁ ≠ μ₂).
+
+### **Decision Rule** 
+- If the p-value < 0.05, reject the null hypothesis (H₀).
+
+### **Conclusion**
+> Since the p-value is less than 0.05, we reject the null hypothesis. This suggests that there is a statistically significant difference in mean life expectancy between Europe and Africa.
+
+## **Tomorrow 4th March 2026**
+
+### **3. Paired t-Test**
+- Test whether the means of two related samples are significantly different.
+
+### **Paired t-test**
+```{r}
+data <- data.frame(weight_before = c(76, 87, 90, 73, 89, 76, 67, 88, 89, 56, 74, 89),
+                   weight_after = c(70, 78, 84, 70, 86, 72, 65, 80, 85, 50, 68, 82))
+data
+attach(data)
+```
+
+### **The Null and Alternative Hypothesis for the Paired t-Test**
+- Null Hypothesis (H₀): The mean weight before is less than or equal to the mean weight
+  after (μ_before <= μ_after).
+  
+- Alternative Hypothesis (H₁): The mean weight before is greater than the mean weight after (μ_before > μ_after).
+
+### **Decision Rule**
+- If the p-value < 0.05, reject the null hypothesis (H₀).
+
+### **Perform paired t-test**
+```{r}
+result <- t.test(weight_before, weight_after, paired = TRUE, alternative = "greater")
+print(result)
+```
+
+> Since the p-value of 0.000001616 is less than 0.05, we reject the null hypothesis (H₀). This suggests that there is a statistically significant decrease in weight after the intervention compared to before.
+ 
+## **4. Chi-Square Test for Independence**
+- Test whether there is a significant association between two categorical variables.
+
+### **Assumptions of the Chi-Square Test**
+1. **Independence:** The observations must be independent.
+2. **Expected Frequencies:** Each cell in the contingency table should have an expected frequency of at least 5. If this assumption is violated, consider using Fisher's Exact Test instead.
+3. **Random Sampling:** The samples should be randomly selected from the population.
+4. **Scale of Measurement:** The variables should be categorical (nominal or ordinal).
+5. **Sufficient Sample Size:** The sample size should be large enough to ensure the validity of the test. A common rule of thumb is that at least 80% of the expected frequencies should be greater than 5.
+
+### **Chi-square test for independence**
+```{r}
+data <- matrix(c(20, 10, 15, 25), nrow = 2, byrow = TRUE,
+               dimnames = list(c("Group1", "Group2"), c("CategoryA", "CategoryB")))
+data
+```
+
+#### **State the Null and  Alternative Hypothesis for the Chi-Square Test**
+- Null Hypothesis (H₀): There is no association between the two categorical variables Group and Category (they are independent).
+
+- Alternative Hypothesis (H₁): There is an association between the two categorical variables - Group and Category (they are not independent).
+
+### **Decision Criteria**
+- If the p-value < 0.05, reject the null hypothesis (H₀)
+  
+### **Perform chi-square test**
+```{r}
+result <- chisq.test(data)
+print(result)
+```
+
+### **Conclusion**
+> With the p-value of 0.02973, we reject the null hypothesis (H₀). This suggests that there is a statistically significant association between Group and Category, indicating that the distribution of categories differs between the two groups.
+
+
+## **Hands-On Exercises**
+
+### **1. Install and Load "dplyr", "graphics", "MASS"**
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+gss <-read.csv("GSSsubset.csv")
+head(gss)
+```
+
+### **Check the Structure of the Dataset**
+```{r}
+str(gss)
+```
+
+### Convert all Character Variables to Factors
+```{r}
+gss <- gss %>%
+  mutate(across(where(is.character), as.factor))
+str(gss)
+```
+
+### **Chi-Sqquare Test of sex and degree**
+```{r}
+contingency_table <- table(gss$sex, gss$degree)
+contingency_table
+```
+
+### **State the Null and Alternative Hypothesis for the Chi-Square Test**
+- Null Hypothesis (H₀): There is no association between Gender and Education Qualification
+- Alternative Hypothesis (H₁): There is an association between Gender and Education Qualification
+
+### **Run the Test**
+```{r}
+chi_square_result <- chisq.test(contingency_table)
+chi_square_result
+```
+
+### **Decision Rule**
+- If the p-value < 0.05, reject the null hypothesis (H₀)
+
+### **Conclusio**
+> With the p-value = 0.1736 which is greater than 0.05, we fail to reject the null hypothesis (H₀). This suggests that there is no statistically significant association between Gender and Education Qualification in the GSSsubset dataset.
+
+
+### **Alternatively**
+```{r}
+head(gss)
+```
+
+```{r}
+library(gtsummary)
+
+tbl_summary(gss[c(2,3)], 
+            by = degree) %>%
+  add_ci() %>%
+  add_p(
+    test = list(
+      all_categorical() ~ "chisq.test",    # Chi-square for categorical
+      all_continuous() ~ "anova"     # Anova test for continuous
+    )
+  )
+```
+
+
+### **1. One-Sample t-Test**
+```{r}
+age_result <- t.test(gss$age, mu = 30)
+print(age_result)
+```
+
+### **Perform one-sample t-test on income**
+```{r}
+income_result <- t.test(gss$income, mu = 25000)
+print(income_result)
+```
+
+### **2. Two-Sample t-Test**
+- Perform Two-sample t-test on Age by Gender
+```{r}
+results <- t.test(age ~ sex, var.equal = TRUE, data = gss)
+results
+```
+
+### **Perform Two-sample t-test on income by Gender**
+### **Test Variances Equality**
+```{r}
+
+leveneTest(income~sex, data = gss)
+```
+
+```{r}
+results <- t.test(income ~ sex, var.equal = FALSE, data = gss)
+results
+```
+
+## **3. Chi-Square Test for Independence**
+- Create a contingency table of gender and Marital status
+```{r}
+contingency_table <- table(gss$sex, gss$marital)
+contingency_table
+```
+
+### **Perform chi-square test**
+```{r}
+result <- chisq.test(contingency_table)
+```
+
+### **Observed Frequencies**
+```{r}
+result$observed
+```
+
+### **Expected Frequencies**
+```{r}
+result$expected
+```
+
+#### **Perform Fisher's Exact Test**
+```{r}
+results <- fisher.test(contingency_table)
+result
+```
+
+### **Create a contingency table of education and Marital status**
+```{r}
+contingency_table2 <- table(gss$degree, gss$marital)
+contingency_table2
+```
+
+### **Perform chi-square test**
+```{r}
+chi_square_result <- chisq.test(contingency_table2)
+chi_square_result
+```
+
+### **Fisher's Exact Test**
+```{r}
+Fisher_Exact_results <- fisher.test(contingency_table2, alternative = "two.sided",
+                                    conf.int = TRUE, conf.level = 0.95,
+                                    simulate.p.value = TRUE, B = 2000)
+Fisher_Exact_results
+```
+
+### **Sex and Degree Qualification**
+```{r}
+contingency_table2 <- table(gss$marital, gss$degree)
+contingency_table2
+```
+
+### **Homework**
+
+* Conduct Hypothesis Tests on a New Dataset("mtcars") :
+* Use the t.test() function for one-sample, two-sample, and paired t-tests.
+* Use the chisq.test() function for chi-square tests.
+* Interpret the results based on the p-values and significance level (α = 0.05).
+* Discuss the implications of your findings in the context of the dataset.
+* Submit your code and interpretations in a markdown file.
+
+### **Additional Homework**
+
+## Exercise A: Import a Dataset
+
+* Download a dataset (customerData.csv)
+* Load it into R using "rio" package
+* Print first few rows and check structure
+
+## Exercise B: One-Sample T-Test
+
+* Choose a numeric variable (e.g., income, spend etc)
+* Define a hypothesized population mean
+* Perform a one-sample t-test and interpret the result
+
+## Exercise C: Two-Sample T-Test
+
+* Split your data into two groups (e.g., male/female)
+* Perform a two-sample t-test
+* Report whether the difference is statistically significant
+
+## Exercise D: Chi-Square Test
+
+* Select two categorical variables (e.g., occupation vs payment_type )
+* Build a contingency table
+* Perform a chi-square test for independence
+* Interpret the result
+
+## Exercise E: Write a Summary
+
+* Summarize your findings clearly in plain language
+* Include:
+  * What question you were answering
+  * Which test you used
+  * Whether the result was significant
+  * What conclusion can be drawn
+
+
+## Additional Resources
+
+* R Documentation for stats : https://stat.ethz.ch/R-manual/R-devel/library/stats/
+* Statistical Tests in R Cheat Sheet : https://posit.co/download/rstudio-cheatsheets
+* Practical Statistics for Data Scientists : Book by Peter Bruce & Ansdrew Bruce
+* Introduction to Statistical Learning (ISLR) : Free book with R labs – http://faculty.marshall.usc.edu/gareth-james/ISL/
+
+

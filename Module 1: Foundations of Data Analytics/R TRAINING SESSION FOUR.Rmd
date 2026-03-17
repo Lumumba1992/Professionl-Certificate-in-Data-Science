@@ -1,0 +1,218 @@
+---
+title: "Data Visualization with ggplot2"
+author: "Trainer: Lumumba Wandera Victor"
+output: 
+  html_notebook: 
+    theme: readable
+---
+
+# **INTRODUCTION TO STATISTICAL DATA ANALYSIS USING R & RSTUDIO**
+
+### **Session 4: Data Visualization with ggplot2**
+
+### **Hands-On Exercises**
+* 1. Install and Load ggplot2
+```{r}
+#install.packages("ggplot2")
+```
+
+*  Load the library
+```{r}
+library(ggplot2)
+```
+
+### **Set a working Directory**
+```{r}
+setwd("D:/New Program/Training Outline/Training Materials")
+```
+
+### **Import dataset**
+```{r}
+gss <-read.csv("GSSsubset.csv")
+head(gss)
+```
+
+### **1a. Basic Scatter Plot**
+```{r}
+#install.packages("gapminder")
+library(gapminder)
+```
+
+```{r}
+data("gapminder")
+head(gapminder)
+```
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+### **1b. Basic Scatter Plot with Customization**
+```{r}
+ggplot(data = gapminder, aes(x = log(gdpPercap), y = log(lifeExp))) +
+  geom_point(alpha =0.6, color = "blue", size = 1) +
+  labs(title = "Scatter Plot of GDP per Capita vs Life Expectancy",
+       x = "GDP per Capita",
+       y = "Life Expectancy")+
+  theme_bw()
+```
+
+### **2a. Histogram with ggplot**
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_histogram()
+```
+
+### **2b. Histogram with Customization**
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_histogram(fill = "blue", color = "black", alpha = 0.8) +
+  labs(title = "Histogram Showing the Distribution GDP per Capita",
+       x = "GDP per Capita",
+       y = "Frequency") +
+  theme_bw()
+```
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_histogram(fill = "blue", color = "black", alpha = 0.8) +
+  labs(title = "Histogram Showing the Distribution GDP per Capita",
+       x = "GDP per Capita",
+       y = "Frequency") +
+  facet_wrap(~ continent) +
+  theme_bw()
+```
+
+### **3a. Boxplot with ggplot**
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_boxplot()
+```
+
+### **3b. Boxplot with Customization**
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_boxplot(fill = "blue", color = "black", alpha = 0.4) +
+  labs(title = "Boxplot of GDP per Capita",
+       x = "GDP Per Capita",
+       y = "") +
+  theme_bw()
+```
+
+### Facet the Box Plot by Continent
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap)) +
+  geom_boxplot(fill = "blue", color = "black", alpha = 0.4) +
+  labs(title = "Boxplot of GDP per Capita by Continent",
+       x = "GDP Per Capita",
+       y = "") +
+  facet_wrap(~ continent) +
+  theme_bw()
+```
+
+### **4a. Line Graph with ggplot**
+```{r}
+library(ggplot2)
+head(economics)
+```
+
+```{r}
+ggplot(data = economics, aes(x = date, y = unemploy)) +
+  geom_line()
+```
+
+
+### **4b. Line Graph with Customization**
+```{r}
+library(ggthemes)
+ggplot(data = economics, aes(x = date, y = unemploy)) +
+  geom_line(color = "black", size = 0.5) +
+  labs(title = "A Time Series Plot of Unemployment Over Time in the USA",
+       x = "Date",
+       y = "Number of Unemployed")+
+  theme_economist()
+```
+
+
+### **5a. Barplot with ggplot**
+```{r}
+ggplot(data = gapminder, aes(x = continent)) +
+  geom_bar()
+```
+
+```{r}
+library(sjmisc)
+frq(gapminder$continent)
+```
+
+### **5b. Barplot with Customization**
+```{r}
+ggplot(data = gapminder, aes(x = continent)) +
+  geom_bar(fill = "blue", color = "black", alpha = 0.4) +
+  labs(title = "Barplot of Continent Distribution",
+       x = "Continent",
+       y = "Count") +
+  theme_bw()
+```
+
+### **Customize to have Bars Colored by continent**
+```{r}
+ggplot(data = gapminder, aes(x = continent, fill = continent)) +
+  geom_bar(color = "black", alpha = 0.6) +
+  labs(title = "Barplot of Continent Distribution",
+       x = "Continent",
+       y = "Count") +
+  theme_bw()
+```
+
+
+### **6a. Pie Chart with ggplot**
+```{r}
+dim(gapminder)
+```
+
+```{r}
+ggplot(data = gapminder, aes(x = "", fill = continent)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y")
+```
+
+### **6b. Pie Chart with Customization to add Frequencies and Percentages**
+```{r}
+ggplot(data = gapminder, aes(x = "", fill = continent)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = paste0(round((..count..)/sum(..count..)*100, 1), "%")),
+            stat = "count",
+            position = position_stack(vjust = 0.5)) +
+  labs(title = "Pie Chart of Continent Distribution") +
+  theme_void()
+```
+
+## Homework
+
+* Create Visualizations for a Dataset :
+* Use the ggplot2 package to create visualizations for a dataset of your choice.
+* Perform the following tasks:
+i. Create a scatter plot to visualize the relationship between two continuous variables.
+ii. Create a bar plot to display the count or summary of a categorical variable.
+iii. Create a histogram to show the distribution of a single variable.
+iv. Create a boxplot to summarize the distribution of a continuous variable across categories.
+v. -Customize your plots with titles, labels, themes, and aesthetic modifications.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
